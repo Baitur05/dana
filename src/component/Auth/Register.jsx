@@ -1,12 +1,13 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContextProvider";
+import Loader from "../loader/Loader";
 
 const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
 
-  const { handleRegister } = useAuth();
+  const { handleRegister, error, loading, setError } = useAuth();
   console.log(handleRegister);
 
   function handleSave(e) {
@@ -22,9 +23,17 @@ const Register = () => {
     }
   }
 
+  useEffect(() => {
+    setError(false);
+  }, []);
+  if (loading) {
+    return <Loader />;
+  }
   return (
     <div>
       <h1>Register</h1>
+
+      {error ? <h2>{error}</h2> : null}
       <form action="submit" onSubmit={handleSave}>
         <input
           onChange={(e) => setEmail(e.target.value)}

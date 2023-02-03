@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, { createContext, useContext, useState } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { json, Navigate, useNavigate } from "react-router-dom";
 
 const API = "http://34.173.115.25/api/v1";
 export const authContext = createContext();
@@ -43,7 +43,57 @@ const AuthContextProvider = ({ children }) => {
     }
   };
 
-  const values = { handleRegister, handleLogin, error, user };
+  const checkAuth = async () => {
+    setLoading(true);
+
+    try {
+      const tokens = JSON.parse(localStorage.getItem("tokens"));
+      const Authrization = `Bearer ${tokens.access}`;
+
+      const config = {
+        headers: {
+          Authrization,
+        },
+      };
+
+      const res = await axios.post(`${API}/account/token/refresh/`, {
+        refresh: tokens.refresh,
+        config,
+      });
+
+      localStorage.setItem(
+        "tokens",
+        JSON.stringify({
+          access: res.data.access,
+          refresh: tokens.refresh,
+        })
+      );
+      const email = localStorage.getItem("email");
+      setUser(email);
+    } catch (error) {
+      console.log(error);
+      handleLogout();
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("tokens");
+    localStorage.removeItem("email");
+    setUser(false);
+    navigate("/login");
+  };
+  const values = {
+    handleRegister,
+    handleLogin,
+    error,
+    user,
+    checkAuth,
+    setError,
+    loading,
+    handleLogout,
+  };
   return <authContext.Provider value={values}>{children}</authContext.Provider>;
 };
 
