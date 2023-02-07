@@ -32,7 +32,7 @@ const AuthContextProvider = ({ children }) => {
     try {
       const res = await axios.post(`${API}/account/login/`, formData);
 
-      localStorage.setItem("tokwns", JSON.stringify(res.data));
+      localStorage.setItem("tokens", JSON.stringify(res.data));
       localStorage.setItem("email", email);
       setUser(email);
       navigate("/");
